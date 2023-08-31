@@ -3,7 +3,7 @@
 |%
 +|  %global
 ::
-++  arvo  %237
+++  arvo  %236
 ::
 ::  $arch: node identity
 ::  $axal: fundamental node, recursive (trie)
@@ -49,6 +49,10 @@
 +$  cage  (cask vase)
 ++  cask  |$  [a]  (pair mark a)
 +$  desk  @tas
+++  deq
+  |$  [item]
+  [hed=(list item) tal=(list item)]
+::
 +$  dock  (pair @p term)
 +$  gang  (unit (set ship))
 +$  mark  @tas
@@ -175,18 +179,8 @@
 ::  $wisp: arvo task, larval stage
 ::  $wynn: kelvin stack
 ::
-+$  debt
-  $:  ::  run: list of worklists
-      ::  out: pending output
-      ::  kel: kernel files
-      ::  fil: pending files
-      ::
-      run=(list plan)
-      out=(list ovum)
-      kel=(list (pair path (cask)))
-      fil=(list (pair path (cask)))
-  ==
-+$  germ  [vane=term bars=(list duct)]
++$  debt  debt:k236:versions
++$  germ  germ:k236:versions
 +$  grub
   $:  ::  who: identity once we know it
       ::  eny: entropy once we learn it
@@ -207,12 +201,13 @@
       van=(map term (trap vase))
   ==
 +$  heir
-  $%  $:  %grub
-          $%  [?(%240 %239 %238 %237) =grub]
-      ==  ==
-      [?(%240 %239 %238 %237) =debt =soul]
-  ==
-+$  plan  (pair germ (list move))
+   $%  $:  %grub
+           $%  [?(%240 %239 %238 %237 %236) =grub]
+       ==  ==
+       [?(%240 %239 %238 %237) =debt:k237:versions =soul]
+       [%236 =debt:k236:versions =soul]
+   ==
++$  plan  plan:k236:versions
 +$  soul
   $:  ::  identity, time, entropy
       ::  fad: configuration
@@ -246,6 +241,57 @@
   ==
 +$  vane  [=vase =worm]
 +$  vere  [[non=@ta rev=path] kel=wynn]
+::
+++  versions
+  |%
+  ++  k237
+    |%
+    +$  plan  (pair germ (list move))
+    +$  germ  [vane=term bars=(list duct)]
+    +$  debt
+      $:  run=(list plan)
+          out=(list ovum)
+          kel=(list (pair path (cask)))
+          fil=(list (pair path (cask)))
+      ==
+    --
+  ++  k236
+    |%
+    +$  plan  (pair germ (list move))
+    +$  germ  [vane=term bars=(list [@tD duct])]
+    +$  debt
+      $:  ::  run: list of worklists
+          ::  out: pending output
+          ::  kel: kernel files
+          ::  fil: pending files
+          ::
+          run=(pair (unit plan) (deq plan))
+          out=(list ovum)
+          kel=(list (pair path (cask)))
+          fil=(list (pair path (cask)))
+      ==
+    ++  debt-from-k237
+      |=  d=debt:k237
+      ^-  debt
+      :: d(run [~ [(turn run.d plan-from-k237) ~]])
+      =/  plans=(list plan)  (turn run.d plan-from-k237)
+      %=    d
+          run
+        ?~  plans
+          [~ [~ ~]]
+        [`i.plans [t.plans ~]]
+      ==
+    ++  plan-from-k237
+      |=  p=plan:k237
+      ^-  plan
+      p(p (germ-from-k237 p.p))
+    ++  germ-from-k237
+      |=  g=germ:k237
+      ^-  germ
+      g(bars (turn bars.g (lead '~')))
+    --
+  --
+::
 +$  vile
   $:  typ=type    ::  -:!>(*type)
       duc=type    ::  -:!>(*duct)
@@ -340,6 +386,47 @@
       ==
     ~
   `[[q.p.i q.p.i.t]:p.u.lot u.bem]
+::  |do: deque engine
+::
+++  do
+  =|  d=(deq)
+  |@
+  +$  item  _?>(?=(^ hed.d) i.hed.d)
+  ++  push-hed
+    |=  =item
+    ^+  d
+    d(hed [item hed.d])
+  ::
+  ++  push-tal
+    |=  =item
+    ^+  d
+    d(tal [item tal.d])
+  ::
+  ++  pop-hed
+    ^-  [(unit item) _d]
+    =?  d  =(~ hed.d)  [hed=(flop tal.d) tal=~]
+    ?~  hed.d
+      [~ d]
+    [`i.hed.d d(hed t.hed.d)]
+  ::
+  ++  pop-tal
+    ^-  [(unit item) _d]
+    =?  d  =(~ tal.d)  [hed=~ tal=(flop hed.d)]
+    ?~  tal.d
+      [~ d]
+    [`i.tal.d d(tal t.tal.d)]
+  --
+::
+++  rant
+  |=  a=(list [char=@tD *])
+  =|  b=tape
+  ?~  a
+    b
+  |-  ^-  tape
+  ?~  t.a
+    b
+  =.  b  [char.i.a b]
+  $(a t.a)
 ::
 ++  look
   ~/  %look
@@ -1206,8 +1293,9 @@
             ::  but: reboot signal
             ::
             ::
-            run=(list plan)
+            run=(pair (unit plan) (deq plan))
             out=(list ovum)
+            neb=_15
             gem=germ
             dud=(unit goof)
             $=  but  %-  unit
@@ -1224,6 +1312,7 @@
     ::  +abet: finalize loop
     ::
     ++  abet
+      ~&  >  %abet
       ^-  (each (pair (list ovum) soul) (trap ^))
       ?~  but
         ^-   [%& (pair (list ovum) soul)]
@@ -1256,20 +1345,30 @@
     ::
     ++  emit
       |=  pan=plan
-      this(run [pan run])
+      ~&  >  [%emit p.pan]
+      ::  works
+      ::
+      :: this(tal.q.run [pan tal.q.run])
+      ::  fails
+      ::
+      this(q.run (~(push-tal do q.run) pan))
     ::  +loop: until done
     ::
     ++  loop
       ^+  abet
-      ?:  ?|  ?=(~ run)
+      =?  run  =(~ p.run)
+        ~(pop-hed do q.run)
+      ?:  ?|  ?=([~ [~ ~]] run)
               ?=(^ but)
           ==
         abet
-      ?:  =(~ q.i.run)    :: XX TMI
-        loop(run t.run)
+      ?>  ?=(^ p.run)
+      :: ~&  >>  p.u.p.run
+      ?:  =(~ q.u.p.run)    :: XX TMI
+        loop(run ~(pop-hed do q.run), neb 15)
       =.  dud  ~
-      =.  gem  p.i.run
-      =^  mov=move  q.i.run  q.i.run
+      =.  gem  p.u.p.run
+      =^  mov=move  q.u.p.run  q.u.p.run
       loop:(step mov)
     ::  +step: advance the loop one step by routing a move
     ::
@@ -1278,6 +1377,10 @@
       ^+  this
       ::
       ~?  &(!lac.fad ?=(^ dud))  %goof
+      =.  neb  (^mod +(neb) 94)
+      =/  bar  (add '!' neb)
+      ::
+      |-
       ::
       ?-  -.ball.move
       ::
@@ -1290,7 +1393,7 @@
         =*  task  task.note.ball.move
         ::
         ~?  &(!lac.fad !=(%$ vane.gem))
-          :-  (runt [(lent bars.gem) '|'] "")
+          :-  (rant [bar duct] bars.gem)
           :^  %pass  [vane.gem vane]
             ?:  ?=(?(%deal %deal-gall) +>-.task)
               :-  :-  +>-.task
@@ -1301,7 +1404,7 @@
         ::
         ::  cons source onto wire, and wire onto duct
         ::
-        (call [[vane.gem wire] duct] vane task)
+        (call bar [[vane.gem wire] duct] vane task)
       ::
       ::  %slip: lateral move
       ::
@@ -1311,10 +1414,10 @@
         =*  task  task.note.ball.move
         ::
         ~?  !lac.fad
-          :-  (runt [(lent bars.gem) '|'] "")
+          :-  (rant [bar duct] bars.gem)
           [%slip [vane.gem vane] (symp +>-.task) duct]
         ::
-        (call duct vane task)
+        (call bar duct vane task)
       ::
       ::  %give: return move
       ::
@@ -1331,14 +1434,14 @@
           ?>(?=(^ wire) wire)
         ::
         ~?  &(!lac.fad !=(%$ way) |(!=(%blit +>-.gift) !=(%d vane.gem)))
-          :-  (runt [(lent bars.gem) '|'] "")
+          :-  (rant [bar duct] bars.gem)
           :^  %give  vane.gem
             ?:  ?=(%unto +>-.gift)
               [+>-.gift (symp +>+<.gift)]
             (symp +>-.gift)
           duct.move
         ::
-        (take duct wire way gift)
+        (take bar duct wire way gift)
       ::
       ::  %hurl: action with error
       ::
@@ -1403,7 +1506,7 @@
     ::  +call: advance to target
     ::
     ++  call
-      |=  [=duct way=term task=maze]
+      |=  [bar=@tD =duct way=term task=maze]
       ^+  this
       ?:  ?=(%$ way)
         ~>  %mean.'arvo: call:pith failed'
@@ -1412,14 +1515,14 @@
         ;;(waif q.p.task)
       ::
       =.  way  (grow way)
-      %+  push  [way duct bars.gem]
-      ~|  bar-stack=`(list ^duct)`[duct bars.gem]
+      %+  push  [way [bar duct] bars.gem]
+      ~|  bar-stack=`(list ^duct)`[duct (turn bars.gem tail)]
       %.  task
       call:(spin:(plow way) duct eny dud)
     ::  +take: retreat along call-stack
     ::
     ++  take
-      |=  [=duct =wire way=term gift=maze]
+      |=  [bar=@tD =duct =wire way=term gift=maze]
       ^+  this
       ?:  ?=(%$ way)
         ::
@@ -1430,12 +1533,12 @@
       ::  the caller was a vane
       ::
       =.  way  (grow way)
-      %+  push  [way duct bars.gem]
+      %+  push  [way [bar duct] bars.gem]
       ::
       ::  cons source onto .gift to make a $sign
       ::
       ~|  wire=wire
-      ~|  bar-stack=`(list ^duct)`[duct bars.gem]
+      ~|  bar-stack=`(list ^duct)`[duct (turn bars.gem tail)]
       %.  [wire [vane.gem gift]]
       take:(spin:(plow way) duct eny dud)
     ::  +push: finalize an individual step
@@ -1767,6 +1870,7 @@
   =.  sol
     ?-  -.hir
       ?(%240 %239 %238 %237)  soul.hir
+      %236  soul.hir
     ==
   ::  clear compiler caches
   ::
@@ -1781,8 +1885,13 @@
       ==
   ::  restore working state and resume
   ::
+  =/  det
+    ?-  -.hir
+      ?(%240 %239 %238 %237)  (debt-from-k237:k236:versions debt.hir)
+      %236  debt.hir
+    ==
   =/  zef=(each (pair (list ovum) soul) (trap ^))
-    loop:(~(jump le:part [pit vil] sol) debt.hir)
+    loop:(~(jump le:part [pit vil] sol) det)
   ?-  -.zef
     %&  [p.p.zef ..load(sol q.p.zef)]
     %|  $:p.zef
